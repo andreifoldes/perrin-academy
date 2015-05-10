@@ -26,4 +26,5 @@ More specific to imaging
    :maxdepth: 2
 
    smoothing_intro
+   smoothing_as_convolution
    random_fields

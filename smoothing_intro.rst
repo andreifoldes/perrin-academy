@@ -125,7 +125,7 @@ and the data values for the same points are:
     array([-0.20487651, -0.35882895,  0.6034716 , -1.66478853, -0.70017904])
 
 We then multiply the Gaussian kernel (weight) values by the values of our
-data, and sum the results to get the new smoothed value for point 14:
+data, and sum the results to get the new smoothed value for point 13:
 
 .. plot::
     :context:
@@ -159,6 +159,13 @@ Of course, we could have used any shape for the kernel - such as a
 square wave. A square wave kernel with sum set to one would would have the
 effect of replacing each data point with the mean of itself and the
 neighboring points.
+
+************************
+Smoothing as convolution
+************************
+
+Smoothing can also be implemented and understood as *convolution* - see
+:doc:`smoothing_as_convolution` for an explanation.
 
 ***************
 Smoothing in 2D
@@ -209,11 +216,11 @@ difficult to visualize, being something like a sphere with edges that fade
 out, as the cone fades out at the edges in the 2D case.
 
 In fact, it turns out that we don't have to generate these 2D and 3D versions
-of the kernel for the computations, because we get the same result as we do by
-applying the full 2 or 3D kernel, if we simply apply a one dimensional smooth
-sequentially in the 2 or 3 dimensions. Thus, for 2 dimensions, we could first
-smooth in the x direction, and then smooth the x-smoothed data, in the y
-direction.
+of the kernel for the computations, because we can get the same result from
+applying a one dimensional smooth sequentially in the 2 or 3 dimensions. Thus,
+for 2 dimensions, we could first smooth in the x direction, and then smooth
+the x-smoothed data, in the y direction, This gives the same output as
+applying the 2D kernel.
 
 ***********
 Why smooth?
