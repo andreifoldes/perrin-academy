@@ -9,6 +9,14 @@ Perrin Academy
 
 Some tutorials to do with brain imaging and statistics.
 
+General computing and mathematics
+=================================
+
+.. toctree::
+    :maxdepth: 2
+
+    angle_sum
+
 General statistics
 ==================
 
