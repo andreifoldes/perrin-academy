@@ -1,6 +1,6 @@
-########################
-Proof for angle sum rule
-########################
+##################
+The angle sum rule
+##################
 
 The angle sum rule is:
 

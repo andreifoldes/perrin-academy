@@ -13,7 +13,7 @@ General computing and mathematics
 =================================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     angle_sum
 
@@ -21,7 +21,7 @@ General statistics
 ==================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    glm_intro
    bonferroni_correction
@@ -32,7 +32,7 @@ More specific to imaging
 ========================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    smoothing_intro
    smoothing_as_convolution
