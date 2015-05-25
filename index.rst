@@ -24,6 +24,7 @@ General statistics
    :maxdepth: 2
 
    glm_intro
+   bonferroni_correction
    exploring_r_formula
    ioannidis_2005
 
