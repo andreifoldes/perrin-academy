@@ -20,7 +20,7 @@ rotation of a length 1 vector $(1, 0)$ by $\alpha$ degrees around the origin.
 We rotate this vector another $\beta$ degrees anticlockwise around the origin
 to give length 1 vector $(x_2, y_2)$.
 
-.. image:: angle_sum.png
+.. image:: images/angle_sum.png
 
 We can see from the picture that:
 
