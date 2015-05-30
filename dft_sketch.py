@@ -38,8 +38,7 @@ class DFTSketch(object):
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
 
-    def __init__(self, x, inverse=False):
-        self.inverse = inverse
+    def __init__(self, x):
         # Vectors are always column vectors
         x = np.atleast_2d(x)
         if x.shape[0] == 1:
@@ -48,20 +47,20 @@ class DFTSketch(object):
         self.x = x
         # DFT works over last dimension
         self.X = np.fft.fft(x.T).T
-        self.C, self.S = cosine_sine_basis(self.N)
-        self._ax_defs = self._get_ax_defs()
+        # Some housekeeping filled in during sketch method
         self._axes = None
         self._fig = None
 
-    def _get_ax_defs(self):
+    def _get_ax_defs(self, inverse):
         N = self.N
         x = self.x
-        if self.inverse:
+        if inverse:
             x = x.astype(np.complex)
         X = self.X
         pad = self.IMAGE_PAD * 2
-        C = self.scale_array(self.C)
-        S = self.scale_array(self.S)
+        C, S = cosine_sine_basis(N)
+        C = self.scale_array(C)
+        S = self.scale_array(S)
         complex_x = np.iscomplexobj(x)
         if complex_x:
             x_real, x_imag = self.scale_complex_vector(x)
@@ -80,7 +79,7 @@ class DFTSketch(object):
                      width = self.TEXT_WIDTH)
         plus_ax = dict(content=r'$+$',
                        width = self.TEXT_WIDTH)
-        if self.inverse:
+        if inverse:
             inv_N_ax = dict(content=r'$\frac{1}{N}$',
                             width = self.TEXT_WIDTH)
             x_real_ax = dict(name='x_real_ax',
@@ -144,7 +143,6 @@ class DFTSketch(object):
                 C_ax, x_c_ax, plus_ax,
                 S_ax, x_s_ax]
 
-
     def scale_complex_vector(self, x):
         """ Scale real and complex parts at the same time
         """
@@ -184,9 +182,9 @@ class DFTSketch(object):
                 fontsize=self.FONT_SIZE,
                 transform=ax.transAxes)
 
-    def sketch(self, **fig_kw):
+    def sketch(self, inverse=False, **fig_kw):
         # Draw sketch
-        ax_defs = self._ax_defs
+        ax_defs = self._get_ax_defs(inverse)
         widths = [ax_def['width'] for ax_def in ax_defs]
         gridspec_kw = dict(width_ratios=widths)
         self.fig, axes = plt.subplots(1, len(ax_defs),
