@@ -34,7 +34,6 @@ def img_rect(ax, x, y, width, height, border=0, color='k'):
 
 class DFTSketch(object):
     FONT_SIZE = 18
-    AXES_PAD = 0.1
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
 
