@@ -2,12 +2,11 @@
 
 """
 
+from __future__ import division
+
 import numpy as np
-from numpy.fft import fft, ifft
 
 import matplotlib.pyplot as plt
-
-from mpl_toolkits.axes_grid1 import ImageGrid
 
 
 def cosine_sine_basis(N):
@@ -39,21 +38,16 @@ class DFTSketch(object):
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
 
-    def __init__(self, vec, inverse=False):
+    def __init__(self, x, inverse=False):
         self.inverse = inverse
         # Vectors are always column vectors
-        vec = np.atleast_2d(vec)
-        if vec.shape[0] == 1:
-            vec = vec.T
-        self.N = vec.shape[0]
-        if inverse:
-            self.X = vec
-            self.x = ifft(vec)
-            self.complex_in = True
-        else:  # Forward transform
-            self.X = fft(vec)
-            self.x = vec
-            self.complex_in = np.iscomplexobj(vec)
+        x = np.atleast_2d(x)
+        if x.shape[0] == 1:
+            x = x.T
+        self.N = x.shape[0]
+        self.x = x
+        # DFT works over last dimension
+        self.X = np.fft.fft(x.T).T
         self.C, self.S = cosine_sine_basis(self.N)
         self._ax_defs = self._get_ax_defs()
         self._axes = None
@@ -61,14 +55,26 @@ class DFTSketch(object):
 
     def _get_ax_defs(self):
         N = self.N
+        x = self.x
+        if self.inverse:
+            x = x.astype(np.complex)
+        X = self.X
         pad = self.IMAGE_PAD * 2
+        C = self.scale_array(self.C)
+        S = self.scale_array(self.S)
+        complex_x = np.iscomplexobj(x)
+        if complex_x:
+            x_real, x_imag = self.scale_complex_vector(x)
+        else:
+            x_real = self.scale_array(x)
+        X_real, X_imag = self.scale_complex_vector(X)
         C_ax = dict(name='C',
                     title=r'$\mathbf{C}$',
-                    content=self.C,
+                    content=C,
                     width= N + pad)
         S_ax = dict(name='S',
                     title=r'$\mathbf{S}$',
-                    content=self.S,
+                    content=S,
                     width= N + pad)
         eq_ax = dict(content=r'$=$',
                      width = self.TEXT_WIDTH)
@@ -79,67 +85,87 @@ class DFTSketch(object):
                             width = self.TEXT_WIDTH)
             x_real_ax = dict(name='x_real_ax',
                              title='$x$',
-                             content = self.x.real,
+                             content = x_real,
                              width = 1 + pad)
             x_imag_ax = dict(name='x_imag_ax',
-                             content=self.x.imag,
+                             content = x_imag,
                              width = 1 + pad)
             X_c_real_ax = dict(name='X_c_real_ax',
                                title='$X$',
-                               content=self.X.real,
+                               content = X_real,
                                width = 1 + pad)
             X_c_imag_ax = dict(name='X_c_imag_ax',
-                               content=self.X.imag,
+                               content = X_imag,
                                width = 1 + pad)
             X_s_real_ax = dict(name='X_s_real_ax',
                                title='$X$',
-                               content=self.X.real,
+                               content = X_real,
                                width = 1 + pad)
             X_s_imag_ax = dict(name='X_s_imag_ax',
-                               content=self.X.imag,
+                               content = X_imag,
                                width = 1 + pad)
             return [x_real_ax, x_imag_ax, eq_ax,
                     inv_N_ax, C_ax, X_c_real_ax, X_c_imag_ax, plus_ax,
                     inv_N_ax, S_ax, X_s_real_ax, X_s_imag_ax]
         X_real_ax = dict(name='X_real_ax',
                          title = '$X$',
-                         content=self.X.real,
+                         content = X_real,
                          width = 1 + pad)
         X_imag_ax = dict(name='X_imag_ax',
-                         content=self.X.imag,
+                         content = X_imag,
                          width = 1 + pad)
-        if np.iscomplexobj(self.x):
+        if complex_x:
             x_c_real_ax = dict(name='x_c_real_ax',
                                title = '$x$',
-                               content=self.x.real,
+                               content = x_real,
                                width = 1 + pad)
             x_c_imag_ax = dict(name='x_c_imag_ax',
-                               content=self.x.imag,
+                               content = x_imag,
                                width = 1 + pad)
             x_s_real_ax = dict(name='x_s_real_ax',
                                title='$x$',
-                               content=self.x.real,
+                               content = x_real,
                                width = 1 + pad)
             x_s_imag_ax = dict(name='x_s_imag_ax',
-                               content=self.x.imag,
+                               content = x_imag,
                                width = 1 + pad)
             return [X_real_ax, X_imag_ax, eq_ax,
                     C_ax, x_c_real_ax, x_c_imag_ax, plus_ax,
                     S_ax, x_s_real_ax, x_s_imag_ax]
         x_c_ax = dict(name='x_c_ax',
                       title=r'$x$',
-                      content=self.x,
+                      content=x_real,
                       width = 1 + pad)
         x_s_ax = dict(name='x_s_ax',
                       title=r'$x$',
-                      content=self.x,
+                      content=x_real,
                       width = 1 + pad)
         return [X_real_ax, X_imag_ax, eq_ax,
                 C_ax, x_c_ax, plus_ax,
                 S_ax, x_s_ax]
 
+
+    def scale_complex_vector(self, x):
+        """ Scale real and complex parts at the same time
+        """
+        N = x.shape[0]
+        scaled = np.zeros((N, 2))
+        scaled[:, 0] = x[:, 0].real
+        scaled[:, 1] = x[:, 0].imag
+        scaled = self.scale_array(scaled)
+        return scaled[:, 0][:, None, :], scaled[:, 1][:, None, :]
+
+    def scale_array(self, arr):
+        """ Return RGB form of 2D array, centering scaling around 0
+        """
+        mn, mx = arr.min(), arr.max()
+        vmax = max(np.abs(mn), np.abs(mx))
+        if vmax != 0:
+            arr = arr / (vmax * 2)
+        return np.tile((arr + 0.5)[..., None], (1, 1, 3))
+
     def show_array(self, ax, arr, pad=IMAGE_PAD):
-        M, N = arr.shape
+        M, N = arr.shape[:2]  # Allow for float scaled data
         ax.imshow(arr, cmap='gray', interpolation='nearest')
         ax.axis('off')
         img_rect(ax, 0, 0, N, M, color='k')
