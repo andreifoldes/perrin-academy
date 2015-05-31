@@ -7,9 +7,12 @@ from __future__ import division
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 
 
 def cosine_sine_basis(N):
+    """ Cosine and sine basis for DFT given length `N`
+    """
     C = np.zeros((N, N))
     S = np.zeros((N, N))
     ns = np.arange(N)
@@ -33,9 +36,12 @@ def img_rect(ax, x, y, width, height, border=0, color='k'):
 
 
 class DFTSketch(object):
+    """ Class to show images of matrices for forward and inverse DFT
+    """
     FONT_SIZE = 18
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
+    HSPACE = 0
 
     def __init__(self, x):
         # Vectors are always column vectors
@@ -76,70 +82,72 @@ class DFTSketch(object):
                     width= N + pad)
         eq_ax = dict(content=r'$=$',
                      width = self.TEXT_WIDTH)
-        plus_ax = dict(content=r'$+$',
+        plus_ax = dict(content=r'$+ \; i$',
+                       width = self.TEXT_WIDTH)
+        minus_ax = dict(content=r'$- \; i$',
                        width = self.TEXT_WIDTH)
         if inverse:
             inv_N_ax = dict(content=r'$\frac{1}{N}$',
                             width = self.TEXT_WIDTH)
-            x_real_ax = dict(name='x_real_ax',
+            x_real_ax = dict(name='x_real',
                              title='$x$',
                              content = x_real,
                              width = 1 + pad)
-            x_imag_ax = dict(name='x_imag_ax',
+            x_imag_ax = dict(name='x_imag',
                              content = x_imag,
                              width = 1 + pad)
-            X_c_real_ax = dict(name='X_c_real_ax',
+            X_c_real_ax = dict(name='X_c_real',
                                title='$X$',
                                content = X_real,
                                width = 1 + pad)
-            X_c_imag_ax = dict(name='X_c_imag_ax',
+            X_c_imag_ax = dict(name='X_c_imag',
                                content = X_imag,
                                width = 1 + pad)
-            X_s_real_ax = dict(name='X_s_real_ax',
+            X_s_real_ax = dict(name='X_s_real',
                                title='$X$',
                                content = X_real,
                                width = 1 + pad)
-            X_s_imag_ax = dict(name='X_s_imag_ax',
+            X_s_imag_ax = dict(name='X_s_imag',
                                content = X_imag,
                                width = 1 + pad)
             return [x_real_ax, x_imag_ax, eq_ax,
                     inv_N_ax, C_ax, X_c_real_ax, X_c_imag_ax, plus_ax,
                     inv_N_ax, S_ax, X_s_real_ax, X_s_imag_ax]
-        X_real_ax = dict(name='X_real_ax',
+        X_real_ax = dict(name='X_real',
                          title = '$X$',
                          content = X_real,
                          width = 1 + pad)
-        X_imag_ax = dict(name='X_imag_ax',
+        X_imag_ax = dict(name='X_imag',
                          content = X_imag,
                          width = 1 + pad)
         if complex_x:
-            x_c_real_ax = dict(name='x_c_real_ax',
+            x_c_real_ax = dict(name='x_c_real',
                                title = '$x$',
                                content = x_real,
                                width = 1 + pad)
-            x_c_imag_ax = dict(name='x_c_imag_ax',
+            x_c_imag_ax = dict(name='x_c_imag',
                                content = x_imag,
                                width = 1 + pad)
-            x_s_real_ax = dict(name='x_s_real_ax',
+            x_s_real_ax = dict(name='x_s_real',
                                title='$x$',
                                content = x_real,
                                width = 1 + pad)
-            x_s_imag_ax = dict(name='x_s_imag_ax',
+            x_s_imag_ax = dict(name='x_s_imag',
                                content = x_imag,
                                width = 1 + pad)
             return [X_real_ax, X_imag_ax, eq_ax,
-                    C_ax, x_c_real_ax, x_c_imag_ax, plus_ax,
+                    C_ax, x_c_real_ax, x_c_imag_ax, minus_ax,
                     S_ax, x_s_real_ax, x_s_imag_ax]
-        x_c_ax = dict(name='x_c_ax',
+        x_c_ax = dict(name='x_c',
                       title=r'$x$',
                       content=x_real,
                       width = 1 + pad)
-        x_s_ax = dict(name='x_s_ax',
+        x_s_ax = dict(name='x_s',
                       title=r'$x$',
                       content=x_real,
                       width = 1 + pad)
         return [X_real_ax, X_imag_ax, eq_ax,
-                C_ax, x_c_ax, plus_ax,
+                C_ax, x_c_ax, minus_ax,
                 S_ax, x_s_ax]
 
     def scale_complex_vector(self, x):
@@ -185,7 +193,8 @@ class DFTSketch(object):
         # Draw sketch
         ax_defs = self._get_ax_defs(inverse)
         widths = [ax_def['width'] for ax_def in ax_defs]
-        gridspec_kw = dict(width_ratios=widths)
+        gridspec_kw = dict(width_ratios=widths,
+                           hspace=self.HSPACE)
         self.fig, axes = plt.subplots(1, len(ax_defs),
                                       sharey=True,
                                       gridspec_kw=gridspec_kw,
@@ -200,4 +209,29 @@ class DFTSketch(object):
             if 'title' in ax_def:
                 ax.set_title(ax_def['title'])
             if 'name' in ax_def:
-                self._axes[ax_def['name']] = ax
+                self._axes[ax_def['name']] = dict(axis = ax,
+                                                  ax_def = ax_def)
+
+    def get_axis_names(self):
+        if self._axes is None:
+            raise RuntimeError('Run sketch() first')
+        return [ax['ax_def']['name'] for ax in self._axes.values()]
+
+    def highlight(self, ax_name, slice_specs, color='r'):
+        """ Highlight rows or columns """
+        if self._axes is None:
+            raise RuntimeError('Run sketch() first')
+        ax_info = self._axes[ax_name]
+        ax = ax_info['axis']
+        ax_def = ax_info['ax_def']
+        n_rows, n_columns = ax_def['content'].shape[:2]
+        # Expand vector indices to coordinates
+        if n_columns == 1:
+            slice_specs = [(i, 0) for i in slice_specs]
+        for row_spec, column_spec in slice_specs:
+            x, width = ((0, n_columns) if column_spec == ':'
+                        else (column_spec, 1))
+            y, height = ((0, n_rows) if row_spec == ':'
+                         else (row_spec, 1))
+            ax.add_patch(FancyBboxPatch((x-0.5, y-0.5), width, height,
+                                        alpha=0.5, color=color))
