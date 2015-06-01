@@ -16,6 +16,7 @@ General computing and mathematics
     :maxdepth: 1
 
     angle_sum
+    sum_of_cosines
 
 General statistics
 ==================

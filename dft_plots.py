@@ -35,10 +35,46 @@ def img_rect(ax, x, y, width, height, border=0, color='k'):
     ax.plot([lo_x, hi_x], [hi_y, hi_y], color)
 
 
+def plot_cs_rows(c_or_s, N, rows):
+    """ Plot some rows of C or S matrix
+
+    Parameters
+    ----------
+    c_or_s : {'C', 'S'}
+        Whether to plot from C or S matrix
+    N : int
+        Number of rows / columns for full C / S
+    rows : sequence
+        Rows to plo
+
+    Returns
+    -------
+    fig : ``Figure`` instance
+    """
+    func = np.cos if c_or_s == 'C' else np.sin
+    discrete_ns = np.arange(0, N)
+    continuous_ns = np.linspace(0, N, 1000)
+    fig, axes = plt.subplots(len(rows), 1, figsize=(15, 8))
+    y_lim_lo, y_lim_hi = -1.3, 1.3
+    for plt_no, k in enumerate(rows):
+        discrete_t_k = k * 2 * np.pi * discrete_ns / N
+        continuous_t_k = k * 2 * np.pi * continuous_ns / N
+        ax = axes[plt_no]
+        ax.plot(continuous_ns, func(continuous_t_k), ':')
+        ax.plot(discrete_ns, func(discrete_t_k), 'o')
+        # Add some vertical lines to show sampling position
+        for x_pos in discrete_ns:
+            ax.plot([x_pos, x_pos], [y_lim_lo, y_lim_hi], ':k')
+        ax.set_xlim(0, N)
+        ax.set_ylim(y_lim_lo, y_lim_hi)
+    return fig
+
+
 class DFTSketch(object):
     """ Class to show images of matrices for forward and inverse DFT
     """
     FONT_SIZE = 18
+    TITLE_FONT_SIZE = 16
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
     HSPACE = 0
@@ -195,7 +231,7 @@ class DFTSketch(object):
         widths = [ax_def['width'] for ax_def in ax_defs]
         gridspec_kw = dict(width_ratios=widths,
                            hspace=self.HSPACE)
-        self.fig, axes = plt.subplots(1, len(ax_defs),
+        self._fig, axes = plt.subplots(1, len(ax_defs),
                                       sharey=True,
                                       gridspec_kw=gridspec_kw,
                                       **fig_kw)
@@ -209,13 +245,25 @@ class DFTSketch(object):
             if 'title' in ax_def:
                 ax.set_title(ax_def['title'])
             if 'name' in ax_def:
-                self._axes[ax_def['name']] = dict(axis = ax,
-                                                  ax_def = ax_def)
+                self._axes[ax_def['name']] = {'axis': ax, 'ax_def': ax_def}
 
-    def get_axis_names(self):
+    @property
+    def axes(self):
         if self._axes is None:
             raise RuntimeError('Run sketch() first')
-        return [ax['ax_def']['name'] for ax in self._axes.values()]
+        return self._axes
+
+    @property
+    def figure(self):
+        if self._fig is None:
+            raise RuntimeError('Run sketch() first')
+        return self._fig
+
+    def get_axis_names(self):
+        return [ax['ax_sdef']['name'] for ax in self.axes.values()]
+
+    def title(self, text):
+        self.figure.suptitle(text, fontsize=self.TITLE_FONT_SIZE)
 
     def highlight(self, ax_name, slice_specs, color='r'):
         """ Highlight rows or columns """
