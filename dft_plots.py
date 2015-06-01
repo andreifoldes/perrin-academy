@@ -78,6 +78,7 @@ class DFTSketch(object):
     IMAGE_PAD = 1
     TEXT_WIDTH = 3
     HSPACE = 0
+    HIGHLIGHT_ALPHA = 0.3
 
     def __init__(self, x):
         # Vectors are always column vectors
@@ -281,5 +282,6 @@ class DFTSketch(object):
                         else (column_spec, 1))
             y, height = ((0, n_rows) if row_spec == ':'
                          else (row_spec, 1))
-            ax.add_patch(FancyBboxPatch((x-0.5, y-0.5), width, height,
-                                        alpha=0.5, color=color))
+            ax.add_patch(
+                FancyBboxPatch((x-0.5, y-0.5), width, height,
+                               alpha=self.HIGHLIGHT_ALPHA, color=color))
