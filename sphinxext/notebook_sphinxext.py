@@ -45,7 +45,10 @@ from docutils.parsers.rst import directives
 from IPython.nbconvert import html, python
 from runipy.notebook_runner import NotebookRunner
 
-from IPython.nbformat import current
+from IPython import nbformat
+
+# Which notebook format we are using
+NBFORMAT = 3
 
 # Tell notebook runner how to handle SVG
 NotebookRunner.MIME_MAP['image/svg+xml'] = 'svg'
@@ -56,8 +59,8 @@ mathjax_config = re.compile(r'<!-- Loading mathjax macro -->.*?'
                             '<!-- End of mathjax configuration -->', re.S)
 
 def cellgen(nb, type=None):
-    for ws in nb.worksheets:
-        for cell in ws.cells:
+    for ws in nb['worksheets']:
+        for cell in ws['cells']:
             if type is None:
                 yield cell
             elif cell.cell_type == type:
@@ -115,10 +118,10 @@ class NotebookDirective(Directive):
 
         # Make unevaluated version
         with io.open(nb_abs_path, 'r') as f:
-            nb = current.read(f, 'json')
+            nb = nbformat.read(f, NBFORMAT)
         clear_output(nb)
         with io.open(dest_path, 'w') as f:
-            current.write(nb, f, 'ipynb')
+            nbformat.write(nb, f, NBFORMAT)
         # Copy any other needed files
         for fn in otherfiles:
             shutil.copy2(fn, dest_dir)
@@ -133,7 +136,7 @@ class NotebookDirective(Directive):
         f.close()
 
         try:
-            evaluated_text = evaluate_notebook(nb_abs_path, dest_path_eval)
+            evaluated_text = evaluate_notebook(nb, dest_path_eval)
         except Exception as err:
             raise RuntimeError("{0} in notebook {1}".format(err, nb_path))
 
@@ -230,13 +233,13 @@ def nb_to_html(nb_path):
     return '\n'.join(lines)
 
 
-def evaluate_notebook(nb_path, dest_path=None):
+def evaluate_notebook(nb, dest_path=None):
     # Create evaluated version and save it to the dest path.
-    nb_runner = NotebookRunner(nb_in=nb_path)
+    nb_runner = NotebookRunner(nb=nb)
     nb_runner.run_notebook()
     if dest_path is None:
         dest_path = 'temp_evaluated.ipynb'
-    nb_runner.save_notebook(dest_path)
+    nbformat.write(nb_runner.nb, open(dest_path, 'w'), NBFORMAT)
     ret = nb_to_html(dest_path)
     if dest_path is 'temp_evaluated.ipynb':
         os.remove(dest_path)
