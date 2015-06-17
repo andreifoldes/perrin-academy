@@ -70,6 +70,40 @@ def plot_cs_rows(c_or_s, N, rows):
     return fig
 
 
+def scale_array(arr):
+    """ Return RGB form of 2D array, centering scaling around 0
+    """
+    mn, mx = arr.min(), arr.max()
+    vmax = max(np.abs(mn), np.abs(mx))
+    if vmax != 0:
+        arr = arr / (vmax * 2)
+    return np.tile((arr + 0.5)[..., None], (1, 1, 3))
+
+
+def show_array(ax, arr, pad=0):
+    """ Display array on given axis, maybe with padding
+    """
+    M, N = arr.shape[:2]  # Allow for float scaled data
+    ax.imshow(arr, cmap='gray', interpolation='nearest')
+    ax.axis('off')
+    img_rect(ax, 0, 0, N, M, color='k')
+    # Expand axis by 1 unit in each direction
+    x_lo, x_hi, y_hi, y_lo = ax.axis()
+    ax.axis((x_lo - pad, x_hi + pad, y_hi + pad, y_lo - pad))
+    ax.set_clip_on(False)
+
+
+def centered_text(ax, string, font_size=18):
+    """ Put text in center of axis
+    """
+    ax.axis('off')
+    ax.text(0.5, 0.5, string,
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=font_size,
+            transform=ax.transAxes)
+
+
 class DFTSketch(object):
     """ Class to show images of matrices for forward and inverse DFT
     """
@@ -101,13 +135,13 @@ class DFTSketch(object):
         X = self.X
         pad = self.IMAGE_PAD * 2
         C, S = cosine_sine_basis(N)
-        C = self.scale_array(C)
-        S = self.scale_array(S)
+        C = scale_array(C)
+        S = scale_array(S)
         complex_x = np.iscomplexobj(x)
         if complex_x:
             x_real, x_imag = self.scale_complex_vector(x)
         else:
-            x_real = self.scale_array(x)
+            x_real = scale_array(x)
         X_real, X_imag = self.scale_complex_vector(X)
         C_ax = dict(name='C',
                     title=r'$\mathbf{C}$',
@@ -194,37 +228,8 @@ class DFTSketch(object):
         scaled = np.zeros((N, 2))
         scaled[:, 0] = x[:, 0].real
         scaled[:, 1] = x[:, 0].imag
-        scaled = self.scale_array(scaled)
+        scaled = scale_array(scaled)
         return scaled[:, 0][:, None, :], scaled[:, 1][:, None, :]
-
-    def scale_array(self, arr):
-        """ Return RGB form of 2D array, centering scaling around 0
-        """
-        mn, mx = arr.min(), arr.max()
-        vmax = max(np.abs(mn), np.abs(mx))
-        if vmax != 0:
-            arr = arr / (vmax * 2)
-        return np.tile((arr + 0.5)[..., None], (1, 1, 3))
-
-    def show_array(self, ax, arr, pad=IMAGE_PAD):
-        M, N = arr.shape[:2]  # Allow for float scaled data
-        ax.imshow(arr, cmap='gray', interpolation='nearest')
-        ax.axis('off')
-        img_rect(ax, 0, 0, N, M, color='k')
-        # Expand axis by 1 unit in each direction
-        x_lo, x_hi, y_hi, y_lo = ax.axis()
-        ax.axis((x_lo - pad, x_hi + pad, y_hi + pad, y_lo - pad))
-        ax.set_clip_on(False)
-
-    def show_text(self, ax, string):
-        """ Put text in center of axis
-        """
-        ax.axis('off')
-        ax.text(0.5, 0.5, string,
-                horizontalalignment='center',
-                verticalalignment='center',
-                fontsize=self.FONT_SIZE,
-                transform=ax.transAxes)
 
     def sketch(self, inverse=False, **fig_kw):
         # Draw sketch
@@ -240,9 +245,9 @@ class DFTSketch(object):
         for ax, ax_def in zip(axes, ax_defs):
             content = ax_def['content']
             if not hasattr(content, 'dtype'):  # must be str
-                self.show_text(ax, content)
+                centered_text(ax, content, self.FONT_SIZE)
             else:
-                self.show_array(ax, content)
+                show_array(ax, content, self.IMAGE_PAD)
             if 'title' in ax_def:
                 ax.set_title(ax_def['title'])
             if 'name' in ax_def:
