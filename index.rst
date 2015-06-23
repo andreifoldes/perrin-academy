@@ -12,29 +12,32 @@ Some tutorials to do with brain imaging and statistics.
 General computing and mathematics
 =================================
 
-.. toctree::
-    :maxdepth: 1
-
-    angle_sum
-    sum_of_cosines
+* :doc:`angle_sum`
+* `Sums of sinusoids <sum_of_cosines.html>`_
 
 General statistics
 ==================
 
-.. toctree::
-   :maxdepth: 1
-
-   glm_intro
-   bonferroni_correction
-   exploring_r_formula
-   ioannidis_2005
+* `Introduction to the general linear model <glm_intro.html>`_
+* `Family-wise error and the Bonferroni correction
+  <bonferroni_correction.html>`_
+* `Exploring the R formula <exploring_r_formula.html>`_
+* `Notes on "why most published research findings are false"
+  <ioannidis_2005.html>`_
 
 More specific to imaging
 ========================
 
-.. toctree::
-   :maxdepth: 1
+* :doc:`smoothing_intro`
+* `Smoothing as convolution <smoothing_as_convolution.html>`_
+* `Multiple comparison correction with random field theory
+  <random_fields.html>`_
 
-   smoothing_intro
-   smoothing_as_convolution
-   random_fields
+.. The hidden toctree below is to suppress build warnings
+
+.. toctree::
+    :hidden:
+
+    angle_sum
+    smoothing_intro
+    README

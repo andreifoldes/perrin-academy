@@ -36,10 +36,15 @@ clean:
 	-rm -rf _build/*
 	python ./tools/clear_all_ipynb.py .
 
-html:
+html-only:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
 	@echo "Build finished. The HTML pages are in _build/html."
+
+html: html-only
+	./tools/write_all_ipynb.py . _build/html --verbose
+	# To keep an old link from failing
+	cp _build/html/exploring_r_formula.ipynb _build/html/exploring_r_formula_evaluated.ipynb
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) _build/dirhtml
