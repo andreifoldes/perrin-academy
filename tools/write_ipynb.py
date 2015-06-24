@@ -37,8 +37,8 @@ def nb_to_html(nb, template_name=DEFAULT_TEMPLATE, resources=None):
     full_resources = dict(metadata = nb.metadata)
     if resources is not None:
         full_resources.update(resources)
-    output, resources = exporter.from_notebook_node(nb,
-                                                    resources=full_resources)
+    output, resources = exporter.from_notebook_node(
+        nb, resources=full_resources)
     return output
 
 
@@ -71,8 +71,8 @@ def write_ipynb(nb_path, out_dir, template_name=DEFAULT_TEMPLATE):
     nb_html = nb_to_html(nbformat.convert(nb_evaluated, HTML_FORMAT),
                          template_name=template_name,
                          resources=dict(nb_fname=fname))
-    with io.open(pjoin(out_dir, froot + '.html'), 'wt') as f:
-        f.write(nb_html)
+    with io.open(pjoin(out_dir, froot + '.html'), 'wb') as f:
+        f.write(nb_html.encode('utf-8'))
 
 
 if __name__ == '__main__':
