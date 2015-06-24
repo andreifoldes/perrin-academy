@@ -9,7 +9,7 @@ BUILDDIR      = _build
 
 # Specific stuff for website upload
 WWW = dynevoro@dynevor.org:public_html/perrin
-SITE        = $(BUILDDIR)/html
+WWWDIR       = $(BUILDDIR)/html
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -35,16 +35,27 @@ help:
 clean:
 	-rm -rf _build/*
 	python ./tools/clear_all_ipynb.py .
+	rm -rf *-stamp
+
+notebook_names := $(basename $(wildcard *.ipynb))
+notebook_pages := $(patsubst %,$(WWWDIR)/%.html, $(notebook_names))
+
+wwwdir: wwwdir-stamp
+wwwdir-stamp:
+	if [ ! -d $(WWWDIR) ]; then mkdir -p $(WWWDIR); fi
+	touch $@
+
+$(WWWDIR)/%.html : %.ipynb
+	./tools/write_ipynb.py $< $(WWWDIR)
 
 html-only:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(WWWDIR)
 	@echo
-	@echo "Build finished. The HTML pages are in _build/html."
+	@echo "HTML build finished. The HTML pages are in $(WWWDIR)."
 
-html: html-only
-	./tools/write_all_ipynb.py . _build/html --verbose
+html: wwwdir $(notebook_pages) html-only
 	# To keep an old link from failing
-	cp _build/html/exploring_r_formula.ipynb _build/html/exploring_r_formula_evaluated.ipynb
+	cp $(WWWDIR)/exploring_r_formula.ipynb $(WWWDIR)/exploring_r_formula_evaluated.ipynb
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) _build/dirhtml
@@ -62,10 +73,10 @@ json:
 	@echo "Build finished; now you can process the JSON files."
 
 htmlhelp:
-	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) _build/htmlhelp
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(WWWDIR)help
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
-	      ".hhp project file in _build/htmlhelp."
+	      ".hhp project file in $(WWWDIR)help."
 
 qthelp:
 	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) _build/qthelp
@@ -100,5 +111,5 @@ doctest:
 	      "results in _build/doctest/output.txt."
 
 upload: html
-	chmod -R uog+r $(SITE)
-	rsync -avrzH --copy-links --delete -e ssh  $(SITE)/ $(WWW)
+	chmod -R uog+r $(WWWDIR)
+	rsync -avrzH --copy-links --delete -e ssh  $(WWWDIR)/ $(WWW)
