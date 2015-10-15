@@ -272,7 +272,7 @@ Next, we add some random noise to this signal:
 We then smooth with a matching 8 pixel FWHM filter:
 
 .. plot::
-    :context
+    :context:
 
     >>> smoothed_sim_data = np.zeros(y_vals.shape)
     >>> for x_position in x_vals:
