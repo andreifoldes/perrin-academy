@@ -18,6 +18,12 @@ Here is a set of data, made out of random numbers, that we will use as a
 pretend time series, or a single line of data from one plane of an
 image.
 
+.. testsetup::
+
+    import numpy as np
+    # Make numpy print 4 significant digits for prettiness
+    np.set_printoptions(precision=4, suppress=True)
+
 .. plot::
     :context: close-figs
 
@@ -28,6 +34,7 @@ image.
     >>> x_vals = np.arange(n_points)
     >>> y_vals = np.random.normal(size=n_points)
     >>> plt.bar(x_vals, y_vals)
+    <...>
 
 *******************
 The Gaussian kernel
@@ -45,6 +52,7 @@ standard deviation) of 1.
     >>> x = np.arange(-6, 6, 0.1) # x from -6 to 6 in steps of 0.1
     >>> y = 1 / np.sqrt(2 * np.pi) * np.exp(-x ** 2 / 2.)
     >>> plt.plot(x, y)
+    [...]
 
 In the standard statistical way, we have defined the width of the Gaussian
 shape in terms of $\sigma$. However, when the Gaussian is used for smoothing,
@@ -105,6 +113,7 @@ the curve, so that the values add up to one:
     >>> kernel_at_pos = np.exp(-(x_vals - x_position) ** 2 / (2 * sigma ** 2))
     >>> kernel_at_pos = kernel_at_pos / sum(kernel_at_pos)
     >>> plt.bar(x_vals, kernel_at_pos)
+    <...>
 
 In fact the Gaussian values for the 12th through 16th data points are:
 
@@ -113,7 +122,7 @@ In fact the Gaussian values for the 12th through 16th data points are:
     :nofigs:
 
     >>> kernel_at_pos[11:16]
-    array([ 0.11742966,  0.19749236,  0.23485932,  0.19749236,  0.11742966])
+    array([ 0.1174,  0.1975,  0.2349,  0.1975,  0.1174])
 
 and the data values for the same points are:
 
@@ -122,7 +131,7 @@ and the data values for the same points are:
     :nofigs:
 
     >>> y_vals[11:16]
-    array([-0.20487651, -0.35882895,  0.6034716 , -1.66478853, -0.70017904])
+    array([-0.2049, -0.3588,  0.6035, -1.6648, -0.7002])
 
 We then multiply the Gaussian kernel (weight) values by the values of our
 data, and sum the results to get the new smoothed value for point 13:
@@ -150,6 +159,7 @@ data. Here is a very inefficient but simple way of doing this:
     ...     kernel = kernel / sum(kernel)
     ...     smoothed_vals[x_position] = sum(y_vals * kernel)
     >>> plt.bar(x_vals, smoothed_vals)
+    <...>
 
 *************
 Other kernels
@@ -189,6 +199,7 @@ dimension. This time the Gaussian kernel is not a curve, but a cone:
     >>> kernel_2d = np.exp(-(x2d ** 2 + y2d ** 2) / (2 * sigma ** 2))
     >>> kernel_2d = kernel_2d / (2 * np.pi * sigma ** 2) # unit integral
     >>> ax.plot_surface(x2d, y2d, kernel_2d)
+    <...>
 
 As for the 1D case, we can center this kernel to any point in a 2D plane, and
 get the equivalent kernel values for each point on the plane.  Here is a 2D
@@ -246,6 +257,7 @@ a Gaussian with FWHM 8 pixels, centered over the 14th data point:
     >>> x_position = 13 # 14th point
     >>> sim_signal = np.exp(-(x_vals - x_position) ** 2 / (2 * sigma ** 2))
     >>> plt.bar(x_vals, sim_signal)
+    <...>
 
 Next, we add some random noise to this signal:
 
@@ -255,6 +267,7 @@ Next, we add some random noise to this signal:
     >>> noise = np.random.normal(size=n_points)
     >>> sim_data = sim_signal + noise
     >>> plt.bar(x_vals, sim_data)
+    <...>
 
 We then smooth with a matching 8 pixel FWHM filter:
 
@@ -267,6 +280,7 @@ We then smooth with a matching 8 pixel FWHM filter:
     ...     kernel = kernel / sum(kernel)
     ...     smoothed_sim_data[x_position] = sum(sim_data * kernel)
     >>> plt.bar(x_vals, smoothed_sim_data)
+    <...>
 
 and recover our signal well from the noisy data.
 

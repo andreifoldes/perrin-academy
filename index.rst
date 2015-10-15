@@ -28,10 +28,11 @@ General statistics
 More specific to imaging
 ========================
 
-* :doc:`smoothing_intro`
-* `Smoothing as convolution <smoothing_as_convolution.html>`_
+* :doc:`correlated_regressors`;
+* :doc:`smoothing_intro`;
+* `Smoothing as convolution <smoothing_as_convolution.html>`_;
 * `Multiple comparison correction with random field theory
-  <random_fields.html>`_
+  <random_fields.html>`_.
 
 .. The hidden toctree below is to suppress build warnings
 
