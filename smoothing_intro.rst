@@ -25,7 +25,7 @@ image.
     np.set_printoptions(precision=4, suppress=True)
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> import numpy as np
     >>> import matplotlib.pyplot as plt
@@ -47,7 +47,7 @@ Here is a standard Gaussian, with a mean of 0 and a $\sigma$ (=population
 standard deviation) of 1.
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> x = np.arange(-6, 6, 0.1) # x from -6 to 6 in steps of 0.1
     >>> y = 1 / np.sqrt(2 * np.pi) * np.exp(-x ** 2 / 2.)
@@ -105,7 +105,7 @@ smoothing, we divide the values in the Gaussian curve by the total area under
 the curve, so that the values add up to one:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> FWHM = 4
     >>> sigma = fwhm2sigma(FWHM)
@@ -151,7 +151,7 @@ do this for each point, we eventually get the smoothed version of our original
 data. Here is a very inefficient but simple way of doing this:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> smoothed_vals = np.zeros(y_vals.shape)
     >>> for x_position in x_vals:
@@ -186,7 +186,7 @@ Smoothing in two dimensions follows simply from smoothing in one
 dimension. This time the Gaussian kernel is not a curve, but a cone:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> from mpl_toolkits.mplot3d import Axes3D
     >>> fig = plt.figure()
@@ -206,7 +206,7 @@ get the equivalent kernel values for each point on the plane.  Here is a 2D
 Gaussian kernel centered at point (10, 10) on a size (20, 20) plane:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> from mpl_toolkits.mplot3d import Axes3D
     >>> fig = plt.figure()
@@ -250,7 +250,7 @@ can generate a simulated signal in a one dimensional set of data, by creating
 a Gaussian with FWHM 8 pixels, centered over the 14th data point:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> FWHM = 8
     >>> sigma = fwhm2sigma(FWHM)
@@ -262,7 +262,7 @@ a Gaussian with FWHM 8 pixels, centered over the 14th data point:
 Next, we add some random noise to this signal:
 
 .. plot::
-    :context: close-figs
+    :context:
 
     >>> noise = np.random.normal(size=n_points)
     >>> sim_data = sim_signal + noise
@@ -272,7 +272,7 @@ Next, we add some random noise to this signal:
 We then smooth with a matching 8 pixel FWHM filter:
 
 .. plot::
-    :context: close-figs
+    :context
 
     >>> smoothed_sim_data = np.zeros(y_vals.shape)
     >>> for x_position in x_vals:
