@@ -13,9 +13,11 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 # IPython before and after the big split
 try:
-    from nbformat import v3 as nbf
+    import nbformat
 except ImportError:
-    from IPython.nbformat import v3 as nbf
+    from IPython import nbformat
+
+NBFORMAT = 3
 
 
 def cellgen(nb, type=None):
@@ -36,13 +38,13 @@ def main():
     args = parser.parse_args()
     for fname in args.filename:
         with io.open(fname, 'rt') as f:
-            nb = nbf.read_json(f.read())
+            nb = nbformat.read(f, NBFORMAT)
         for cell in cellgen(nb, 'code'):
             if hasattr(cell, 'prompt_number'):
                 del cell['prompt_number']
             cell.outputs = []
         with io.open(fname, 'w') as f:
-            f.write(nbf.write_json(nb))
+            nbformat.write(nb, NBFORMAT)
 
 
 if __name__ == '__main__':

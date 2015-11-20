@@ -46,8 +46,10 @@ from docutils.parsers.rst import directives
 
 # IPython before and after the big split
 try:
+    import nbformat
     from nbformat import v3 as nbf
 except ImportError:
+    from IPython import nbformat
     from IPython.nbformat import v3 as nbf
 try:
     from nbconvert import html, python
@@ -127,10 +129,10 @@ class NotebookDirective(Directive):
 
         # Make unevaluated version
         with io.open(nb_abs_path, 'rt') as f:
-            nb = nbf.read_json(f)
+            nb = nbformat.read(f, as_version=NBFORMAT)
         clear_output(nb)
         with io.open(dest_path, 'wt') as f:
-            f.write(nbf.write_json(nb))
+            nbformat.write(nb, f, as_version=NBFORMAT)
         # Copy any other needed files
         for fn in otherfiles:
             shutil.copy2(fn, dest_dir)
@@ -247,7 +249,7 @@ def evaluate_notebook(nb, dest_path=None):
     nb_runner.run_notebook()
     if dest_path is None:
         dest_path = 'temp_evaluated.ipynb'
-    nbf.write(nb_runner.nb, open(dest_path, 'w'), NBFORMAT)
+    nbformat.write(nb_runner.nb, open(dest_path, 'w'), as_version=NBFORMAT)
     ret = nb_to_html(dest_path)
     if dest_path is 'temp_evaluated.ipynb':
         os.remove(dest_path)

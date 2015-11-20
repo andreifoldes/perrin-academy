@@ -14,9 +14,9 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 # IPython before and after the big split
 try:
-    from nbformat import v3 as nbf
+    import nbformat
 except ImportError:
-    from IPython.nbformat import v3 as nbf
+    from IPython import nbformat
 
 NBFORMAT = 3
 
@@ -45,13 +45,13 @@ def main():
                 continue
             fullpath = os.path.join(dirpath, fname)
             with io.open(fullpath, 'rt') as f:
-                nb = nbf.read_json(f.read())
+                nb = nbformat.read(f, as_version=NBFORMAT)
             for cell in cellgen(nb, 'code'):
                 if hasattr(cell, 'prompt_number'):
                     del cell['prompt_number']
                 cell.outputs = []
             with io.open(fullpath, 'wt') as f:
-                f.write(nbf.write_json(nb))
+                nbformat.write(nb, f, NBFORMAT)
 
 
 if __name__ == '__main__':

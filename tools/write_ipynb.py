@@ -15,9 +15,9 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 # IPython before and after the big split
 try:
-    from nbformat import v3 as nbf, convert as nb_convert
+    from nbformat import read as nb_read, write as nb_write, convert as nb_convert
 except ImportError:
-    from IPython.nbformat import v3 as nbf, convert as nb_convert
+    from IPython.nbformat import read as nb_read, write as nb_write, convert as nb_convert
 try:
     from nbconvert import html
 except ImportError:
@@ -71,11 +71,11 @@ def write_ipynb(nb_path, out_dir, template_name=DEFAULT_TEMPLATE):
     fpath, fname = psplit(nb_path)
     froot, ext = splitext(fname)
     with io.open(nb_path, 'rt') as f:
-        nb = nbf.read_json(f.read())
+        nb = nb_read(f, DEFAULT_READ_FORMAT)
     nb.metadata['name'] = froot
     nb_evaluated = evaluate_notebook(nb, working_dir=fpath)
     with io.open(pjoin(out_dir, fname), 'wt') as f:
-        f.write(nbf.write_json(nb))
+        nb_write(nb, f, DEFAULT_WRITE_FORMAT)
     nb_html = nb_to_html(nb_convert(nb_evaluated, HTML_FORMAT),
                          template_name=template_name,
                          resources=dict(nb_fname=fname))
