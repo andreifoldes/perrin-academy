@@ -11,7 +11,12 @@ import io
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from IPython.nbformat import current
+# IPython before and after the big split
+try:
+    from nbformat import v3 as nbf
+except ImportError:
+    from IPython.nbformat import v3 as nbf
+
 
 def cellgen(nb, type=None):
     for ws in nb.worksheets:
@@ -30,14 +35,14 @@ def main():
                         help='notebook filenames')
     args = parser.parse_args()
     for fname in args.filename:
-        with io.open(fname, 'r') as f:
-            nb = current.read(f, 'json')
+        with io.open(fname, 'rt') as f:
+            nb = nbf.read_json(f.read())
         for cell in cellgen(nb, 'code'):
             if hasattr(cell, 'prompt_number'):
                 del cell['prompt_number']
             cell.outputs = []
         with io.open(fname, 'w') as f:
-            current.write(nb, f, 'ipynb')
+            f.write(nbf.write_json(nb))
 
 
 if __name__ == '__main__':

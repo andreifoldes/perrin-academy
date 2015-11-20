@@ -8,14 +8,17 @@ Looks for files in 'searchpath' with extension '.ipynb'. Opens found files as
 notebook(s) and clears all outputs and prompts, overwriting previous notebook
 """
 import os
-import sys
-
 import io
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from IPython.nbformat import current
+# IPython before and after the big split
+try:
+    from nbformat import v3 as nbf
+except ImportError:
+    from IPython.nbformat import v3 as nbf
 
+NBFORMAT = 3
 
 def cellgen(nb, type=None):
     for ws in nb.worksheets:
@@ -41,14 +44,14 @@ def main():
             if not fname.endswith('.ipynb'):
                 continue
             fullpath = os.path.join(dirpath, fname)
-            with io.open(fullpath, 'r') as f:
-                nb = current.read(f, 'json')
+            with io.open(fullpath, 'rt') as f:
+                nb = nbf.read_json(f.read())
             for cell in cellgen(nb, 'code'):
                 if hasattr(cell, 'prompt_number'):
                     del cell['prompt_number']
                 cell.outputs = []
-            with io.open(fullpath, 'w') as f:
-                current.write(nb, f, 'ipynb')
+            with io.open(fullpath, 'wt') as f:
+                f.write(nbf.write_json(nb))
 
 
 if __name__ == '__main__':

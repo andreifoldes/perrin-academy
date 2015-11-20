@@ -13,8 +13,16 @@ import io
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-import IPython.nbformat as nbformat
-from IPython.nbconvert import html
+# IPython before and after the big split
+try:
+    from nbformat import v3 as nbf, convert as nb_convert
+except ImportError:
+    from IPython.nbformat import v3 as nbf, convert as nb_convert
+try:
+    from nbconvert import html
+except ImportError:
+    from IPython.nbconvert import html
+
 from runipy.notebook_runner import NotebookRunner
 
 DEFAULT_TEMPLATE = 'perrinate.tpl'
@@ -62,13 +70,13 @@ def main():
 def write_ipynb(nb_path, out_dir, template_name=DEFAULT_TEMPLATE):
     fpath, fname = psplit(nb_path)
     froot, ext = splitext(fname)
-    with io.open(nb_path, 'r') as f:
-        nb = nbformat.read(f, DEFAULT_READ_FORMAT)
+    with io.open(nb_path, 'rt') as f:
+        nb = nbf.read_json(f.read())
     nb.metadata['name'] = froot
     nb_evaluated = evaluate_notebook(nb, working_dir=fpath)
     with io.open(pjoin(out_dir, fname), 'wt') as f:
-        nbformat.write(nb, f, DEFAULT_WRITE_FORMAT)
-    nb_html = nb_to_html(nbformat.convert(nb_evaluated, HTML_FORMAT),
+        f.write(nbf.write_json(nb))
+    nb_html = nb_to_html(nb_convert(nb_evaluated, HTML_FORMAT),
                          template_name=template_name,
                          resources=dict(nb_fname=fname))
     with io.open(pjoin(out_dir, froot + '.html'), 'wb') as f:

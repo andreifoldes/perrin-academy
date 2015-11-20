@@ -42,12 +42,21 @@ import re
 from sphinx.util.compat import Directive
 from docutils import nodes
 from docutils.parsers.rst import directives
-from IPython.nbconvert import html, python
+
+
+# IPython before and after the big split
+try:
+    from nbformat import v3 as nbf
+except ImportError:
+    from IPython.nbformat import v3 as nbf
+try:
+    from nbconvert import html, python
+except ImportError:
+    from IPython.nbconvert import html, python
+
 from runipy.notebook_runner import NotebookRunner
 
-from IPython import nbformat
-
-# Which notebook format we are using
+# Version of notebook format we are using
 NBFORMAT = 3
 
 # Tell notebook runner how to handle SVG
@@ -117,11 +126,11 @@ class NotebookDirective(Directive):
             os.makedirs(dest_dir)
 
         # Make unevaluated version
-        with io.open(nb_abs_path, 'r') as f:
-            nb = nbformat.read(f, NBFORMAT)
+        with io.open(nb_abs_path, 'rt') as f:
+            nb = nbf.read_json(f)
         clear_output(nb)
-        with io.open(dest_path, 'w') as f:
-            nbformat.write(nb, f, NBFORMAT)
+        with io.open(dest_path, 'wt') as f:
+            f.write(nbf.write_json(nb))
         # Copy any other needed files
         for fn in otherfiles:
             shutil.copy2(fn, dest_dir)
@@ -131,9 +140,8 @@ class NotebookDirective(Directive):
 
         # Create python script version
         script_text = nb_to_python(nb_abs_path)
-        f = open(dest_path_script, 'w')
-        f.write(script_text.encode('utf8'))
-        f.close()
+        with open(dest_path_script, 'wb') as f:
+            f.write(script_text.encode('utf-8'))
 
         try:
             evaluated_text = evaluate_notebook(nb, dest_path_eval)
@@ -239,7 +247,7 @@ def evaluate_notebook(nb, dest_path=None):
     nb_runner.run_notebook()
     if dest_path is None:
         dest_path = 'temp_evaluated.ipynb'
-    nbformat.write(nb_runner.nb, open(dest_path, 'w'), NBFORMAT)
+    nbf.write(nb_runner.nb, open(dest_path, 'w'), NBFORMAT)
     ret = nb_to_html(dest_path)
     if dest_path is 'temp_evaluated.ipynb':
         os.remove(dest_path)

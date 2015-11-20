@@ -15,7 +15,11 @@ import io
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from IPython.nbformat import current
+# IPython before and after the big split
+try:
+    from nbformat import v3 as nbf
+except ImportError:
+    from IPython.nbformat import v3 as nbf
 
 
 def cellgen(nb, type=None):
@@ -44,8 +48,8 @@ def main():
             if not fname.endswith('.ipynb'):
                 continue
             fullpath = os.path.join(dirpath, fname)
-            with io.open(fullpath, 'r') as f:
-                nb = current.read(f, 'json')
+            with io.open(fullpath, 'rt') as f:
+                nb = nbf.read_json(f.read())
             for cell in cellgen(nb, 'code'):
                 if hasattr(cell, 'prompt_number'):
                     sys.stderr.write(

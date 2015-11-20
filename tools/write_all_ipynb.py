@@ -8,9 +8,8 @@ Looks for files in directory INDIR with extension '.ipynb'. Opens found files
 as notebook(s).  Evaluates, writing output notebook to OUTDIR.  Writes HTML to
 OUTDIR.
 """
-import sys
 import os
-from os.path import join as pjoin, splitext, dirname
+from os.path import join as pjoin, splitext
 
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
