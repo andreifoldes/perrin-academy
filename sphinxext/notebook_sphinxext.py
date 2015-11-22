@@ -132,7 +132,7 @@ class NotebookDirective(Directive):
             nb = nbformat.read(f, as_version=NBFORMAT)
         clear_output(nb)
         with io.open(dest_path, 'wt') as f:
-            nbformat.write(nb, f, as_version=NBFORMAT)
+            nbformat.write(nb, f, NBFORMAT)
         # Copy any other needed files
         for fn in otherfiles:
             shutil.copy2(fn, dest_dir)
@@ -249,7 +249,7 @@ def evaluate_notebook(nb, dest_path=None):
     nb_runner.run_notebook()
     if dest_path is None:
         dest_path = 'temp_evaluated.ipynb'
-    nbformat.write(nb_runner.nb, open(dest_path, 'w'), as_version=NBFORMAT)
+    nbformat.write(nb_runner.nb, open(dest_path, 'w'), NBFORMAT)
     ret = nb_to_html(dest_path)
     if dest_path is 'temp_evaluated.ipynb':
         os.remove(dest_path)
