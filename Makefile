@@ -37,7 +37,7 @@ clean:
 	python ./tools/clear_all_ipynb.py .
 	rm -rf *-stamp
 
-notebook_names := $(basename $(wildcard *.ipynb))
+notebook_names = exploring_r_formula ioannidis_2005
 notebook_pages := $(patsubst %,$(WWWDIR)/%.html, $(notebook_names))
 
 wwwdir: wwwdir-stamp

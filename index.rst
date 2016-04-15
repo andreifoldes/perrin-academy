@@ -9,30 +9,31 @@ Perrin Academy
 
 Some tutorials to do with brain imaging and statistics.
 
+The most recent copy of most of my tutorials are now in `my teaching pages
+<https://matthew-brett.github.com/teaching>`_.
+
 General computing and mathematics
 =================================
 
-* :doc:`angle_sum`
-* `Sums of sinusoids <sum_of_cosines.html>`_
+* :doc:`angle_sum`;
+* :doc:`sum_of_cosines`;
 
 General statistics
 ==================
 
-* `Introduction to the general linear model <glm_intro.html>`_
-* `Family-wise error and the Bonferroni correction
-  <bonferroni_correction.html>`_
-* `Exploring the R formula <exploring_r_formula.html>`_
+* :doc:`glm_intro`;
+* :doc:`bonferroni_correction`;
+* `Exploring the R formula <exploring_r_formula.html>`_;
 * `Notes on "why most published research findings are false"
-  <ioannidis_2005.html>`_
+  <ioannidis_2005.html>`_;
 
 More specific to imaging
 ========================
 
 * :doc:`correlated_regressors`;
 * :doc:`smoothing_intro`;
-* `Smoothing as convolution <smoothing_as_convolution.html>`_;
-* `Multiple comparison correction with random field theory
-  <random_fields.html>`_.
+* :doc:`smoothing_as_convolution`;
+* :doc:`random_fields`.
 
 .. The hidden toctree below is to suppress build warnings
 
